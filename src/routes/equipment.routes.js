@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { equipmentController } from '../controllers/equipment.controller.js';
 import { requestController } from '../controllers/request.controller.js';
+import { weatherController } from '../controllers/weather.controller.js';
 import validate from '../middlewares/validate.js';
 import {
   createEquipmentSchema,
@@ -35,6 +36,13 @@ router.get(
   '/:id/requests',
   validate({ params: equipmentParamsSchema, query: requestQuerySchema }),
   requestController.getByEquipmentId
+);
+
+// Прогноз погоды и оценка пригодности наружных работ
+router.get(
+  '/:id/weather',
+  validate({ params: equipmentParamsSchema }),
+  weatherController.getEquipmentWeather
 );
 
 router.patch(
