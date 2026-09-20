@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import equipmentRoutes from './equipment.routes.js';
 import requestRoutes from './request.routes.js';
+import authRoutes from './auth.routes.js';
 
 const router = Router();
 
@@ -12,6 +13,9 @@ router.get('/health', (req, res) => {
     uptime: process.uptime()
   });
 });
+
+// Роуты аутентификации и сессий
+router.use('/auth', authRoutes);
 
 // Роуты сущностей
 router.use('/equipment', equipmentRoutes);
