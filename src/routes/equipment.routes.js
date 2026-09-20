@@ -13,23 +13,11 @@ import { requestQuerySchema } from '../validators/request.schema.js';
 
 const router = Router();
 
-router.get(
-  '/',
-  validate({ query: equipmentQuerySchema }),
-  equipmentController.getAll
-);
+router.get('/', validate({ query: equipmentQuerySchema }), equipmentController.getAll);
 
-router.post(
-  '/',
-  validate({ body: createEquipmentSchema }),
-  equipmentController.create
-);
+router.post('/', validate({ body: createEquipmentSchema }), equipmentController.create);
 
-router.get(
-  '/:id',
-  validate({ params: equipmentParamsSchema }),
-  equipmentController.getById
-);
+router.get('/:id', validate({ params: equipmentParamsSchema }), equipmentController.getById);
 
 // Вложенный ресурс: заявки по конкретной единице оборудования
 router.get(
@@ -51,10 +39,6 @@ router.patch(
   equipmentController.update
 );
 
-router.delete(
-  '/:id',
-  validate({ params: equipmentParamsSchema }),
-  equipmentController.delete
-);
+router.delete('/:id', validate({ params: equipmentParamsSchema }), equipmentController.delete);
 
 export default router;

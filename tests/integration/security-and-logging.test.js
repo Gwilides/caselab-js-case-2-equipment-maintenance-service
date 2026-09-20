@@ -14,9 +14,7 @@ describe('Security Policies, Headers, and Rate Limiting', () => {
 
   it('should allow whitelisted CORS origin', async () => {
     const allowedOrigin = env.corsOrigins[0] || 'http://localhost:3000';
-    const res = await request(app)
-      .get('/api/health')
-      .set('Origin', allowedOrigin);
+    const res = await request(app).get('/api/health').set('Origin', allowedOrigin);
 
     expect(res.status).toBe(200);
     expect(res.headers['access-control-allow-origin']).toBe(allowedOrigin);
@@ -24,18 +22,14 @@ describe('Security Policies, Headers, and Rate Limiting', () => {
   });
 
   it('should not allow non-whitelisted CORS origin', async () => {
-    const res = await request(app)
-      .get('/api/health')
-      .set('Origin', 'http://malicious-site.com');
+    const res = await request(app).get('/api/health').set('Origin', 'http://malicious-site.com');
 
     expect(res.status).toBe(200);
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 
   it('should set HttpOnly, SameSite=Strict cookie on /api/auth/login', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ apiKey: 'caselab-secret-key' });
+    const res = await request(app).post('/api/auth/login').send({ apiKey: 'caselab-secret-key' });
 
     expect(res.status).toBe(200);
     const cookies = res.headers['set-cookie'];

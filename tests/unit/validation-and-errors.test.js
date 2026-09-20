@@ -102,4 +102,23 @@ describe('Validation and Error Handling', () => {
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('BAD_REQUEST');
   });
+
+  it('FileEquipmentRepository should gracefully handle empty or whitespace files without throwing', async () => {
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const os = await import('node:os');
+    const { FileEquipmentRepository } =
+      await import('../../src/repositories/file/FileEquipmentRepository.js');
+
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'caselab-empty-test-'));
+    const emptyFile = path.join(tmpDir, 'empty.json');
+    await fs.writeFile(emptyFile, '   \n  ', 'utf-8');
+
+    const repo = new FileEquipmentRepository(emptyFile);
+    const result = await repo.findAll();
+    expect(result.items).toEqual([]);
+    expect(result.total).toBe(0);
+
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
 });

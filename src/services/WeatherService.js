@@ -78,9 +78,7 @@ export class WeatherService {
     const hasUnsuitableDay = evaluatedDays.some((d) => !d.suitable);
     const overallSuitable = !hasUnsuitableDay;
 
-    const allReasons = evaluatedDays.flatMap((d) =>
-      d.reasons.map((r) => `${d.date}: ${r}`)
-    );
+    const allReasons = evaluatedDays.flatMap((d) => d.reasons.map((r) => `${d.date}: ${r}`));
 
     return {
       equipmentId: equipment.id,

@@ -24,9 +24,8 @@ export function requireAuth(req, res, next) {
 
   const apiKeyHeader = req.headers['x-api-key'];
   const authHeader = req.headers['authorization'];
-  const bearerToken = authHeader && authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7).trim()
-    : null;
+  const bearerToken =
+    authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
   const cookieToken = req.cookies?.auth_token;
 
   const providedKey = apiKeyHeader || bearerToken || cookieToken;

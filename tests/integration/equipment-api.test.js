@@ -36,9 +36,7 @@ describe('Equipment REST API', () => {
   let createdId;
 
   it('POST /api/equipment - should create equipment and return 201 with Location header', async () => {
-    const res = await request(app)
-      .post('/api/equipment')
-      .send(validEquipment);
+    const res = await request(app).post('/api/equipment').send(validEquipment);
 
     expect(res.status).toBe(201);
     expect(res.headers.location).toMatch(/\/api\/equipment\/[a-f0-9-]+/);
@@ -96,9 +94,7 @@ describe('Equipment REST API', () => {
   });
 
   it('GET /api/equipment - should return paginated list with metadata', async () => {
-    const res = await request(app)
-      .get('/api/equipment?page=1&limit=10')
-      .send();
+    const res = await request(app).get('/api/equipment?page=1&limit=10').send();
 
     expect(res.status).toBe(200);
     expect(res.body.data).toBeInstanceOf(Array);
@@ -111,10 +107,25 @@ describe('Equipment REST API', () => {
     });
   });
 
-  it('GET /api/equipment/:id - should return single equipment by id', async () => {
-    const res = await request(app)
-      .get(`/api/equipment/${createdId}`)
+  it('GET /api/equipment - should filter equipment by installedFrom and installedTo', async () => {
+    // installedAt для createdId равен '2024-01-15'
+    const matchRes = await request(app)
+      .get('/api/equipment?installedFrom=2024-01-01&installedTo=2024-12-31')
       .send();
+
+    expect(matchRes.status).toBe(200);
+    expect(matchRes.body.data.some((e) => e.id === createdId)).toBe(true);
+
+    const noMatchRes = await request(app)
+      .get('/api/equipment?installedFrom=2025-01-01&installedTo=2025-12-31')
+      .send();
+
+    expect(noMatchRes.status).toBe(200);
+    expect(noMatchRes.body.data.some((e) => e.id === createdId)).toBe(false);
+  });
+
+  it('GET /api/equipment/:id - should return single equipment by id', async () => {
+    const res = await request(app).get(`/api/equipment/${createdId}`).send();
 
     expect(res.status).toBe(200);
     expect(res.body.data).toBeDefined();
@@ -122,21 +133,17 @@ describe('Equipment REST API', () => {
   });
 
   it('GET /api/equipment/:id - should return 404 for non-existent equipment', async () => {
-    const res = await request(app)
-      .get('/api/equipment/non-existent-id')
-      .send();
+    const res = await request(app).get('/api/equipment/non-existent-id').send();
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('PATCH /api/equipment/:id - should partially update equipment', async () => {
-    const res = await request(app)
-      .patch(`/api/equipment/${createdId}`)
-      .send({
-        name: 'Обновлённый Ветрогенератор',
-        status: 'maintenance'
-      });
+    const res = await request(app).patch(`/api/equipment/${createdId}`).send({
+      name: 'Обновлённый Ветрогенератор',
+      status: 'maintenance'
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Обновлённый Ветрогенератор');
@@ -145,13 +152,11 @@ describe('Equipment REST API', () => {
   });
 
   it('PATCH /api/equipment/:id - should ignore or strip attempts to modify id or createdAt', async () => {
-    const res = await request(app)
-      .patch(`/api/equipment/${createdId}`)
-      .send({
-        id: 'hacked-id',
-        createdAt: '1970-01-01T00:00:00.000Z',
-        name: 'Безопасное обновление'
-      });
+    const res = await request(app).patch(`/api/equipment/${createdId}`).send({
+      id: 'hacked-id',
+      createdAt: '1970-01-01T00:00:00.000Z',
+      name: 'Безопасное обновление'
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe(createdId);
@@ -159,22 +164,16 @@ describe('Equipment REST API', () => {
   });
 
   it('DELETE /api/equipment/:id - should delete equipment and return 204', async () => {
-    const res = await request(app)
-      .delete(`/api/equipment/${createdId}`)
-      .send();
+    const res = await request(app).delete(`/api/equipment/${createdId}`).send();
 
     expect(res.status).toBe(204);
 
-    const checkRes = await request(app)
-      .get(`/api/equipment/${createdId}`)
-      .send();
+    const checkRes = await request(app).get(`/api/equipment/${createdId}`).send();
     expect(checkRes.status).toBe(404);
   });
 
   it('DELETE /api/equipment/:id - should return 404 when deleting non-existent equipment', async () => {
-    const res = await request(app)
-      .delete('/api/equipment/already-deleted-or-not-found')
-      .send();
+    const res = await request(app).delete('/api/equipment/already-deleted-or-not-found').send();
 
     expect(res.status).toBe(404);
   });
