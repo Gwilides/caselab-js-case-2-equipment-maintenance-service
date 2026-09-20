@@ -1,169 +1,215 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Учёт оборудования и заявок ТО</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="header">
-    <div class="container header-container">
-      <div class="logo">
-        <span class="logo-icon">⚡</span>
-        <h1>Сервис обслуживания оборудования</h1>
-      </div>
-      <div class="system-status" id="systemStatus">
-        <span class="status-indicator"></span>
-        <span id="statusText">Подключение к API...</span>
-      </div>
-    </div>
-  </header>
-
-  <main class="container main-content">
-    <!-- Блок уведомлений -->
-    <div id="alertBox" class="alert hidden"></div>
-
-    <div class="grid-layout">
-      <!-- Секция создания заявки -->
-      <section class="card form-card">
-        <h2>Новая заявка на обслуживание</h2>
-        <form id="createRequestForm" class="request-form">
-          <div class="form-group">
-            <label for="equipmentSelect">Оборудование *</label>
-            <select id="equipmentSelect" name="equipmentId" required>
-              <option value="">Загрузка оборудования...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="titleInput">Тема заявки (5–120 символов) *</label>
-            <input type="text" id="titleInput" name="title" minlength="5" maxlength="120" placeholder="Например: Замена фильтров охлаждения" required>
-          </div>
-
-          <div class="form-group">
-            <label for="descriptionInput">Описание работ</label>
-            <textarea id="descriptionInput" name="description" rows="3" maxlength="2000" placeholder="Подробное описание неисправности или регламента..."></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group half">
-              <label for="prioritySelect">Приоритет *</label>
-              <select id="prioritySelect" name="priority" required>
-                <option value="low">Низкий (low)</option>
-                <option value="medium" selected>Средний (medium)</option>
-                <option value="high">Высокий (high)</option>
-                <option value="critical">Критический (critical)</option>
-              </select>
-            </div>
-
-            <div class="form-group half">
-              <label for="plannedAtInput">Плановая дата</label>
-              <input type="datetime-local" id="plannedAtInput" name="plannedAt">
-            </div>
-          </div>
-
-          <button type="submit" id="submitBtn" class="btn btn-primary">Создать заявку</button>
-        </form>
-      </section>
-
-      <!-- Секция быстрого добавления оборудования при первом старте -->
-      <section class="card form-card">
-        <h2>Регистрация оборудования</h2>
-        <form id="createEquipmentForm" class="equipment-form">
-          <div class="form-group">
-            <label for="eqNameInput">Наименование *</label>
-            <input type="text" id="eqNameInput" name="name" minlength="3" maxlength="100" placeholder="Ветрогенератор ВЭУ-10" required>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group half">
-              <label for="eqTypeSelect">Тип *</label>
-              <select id="eqTypeSelect" name="type" required>
-                <option value="turbine">Турбина (turbine)</option>
-                <option value="inverter">Инвертор (inverter)</option>
-                <option value="sensor">Датчик (sensor)</option>
-                <option value="substation">Подстанция (substation)</option>
-              </select>
-            </div>
-            <div class="form-group half">
-              <label for="eqSerialInput">Серийный номер *</label>
-              <input type="text" id="eqSerialInput" name="serialNumber" placeholder="SN-WT-001" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group half">
-              <label for="eqLatInput">Широта (lat) *</label>
-              <input type="number" id="eqLatInput" name="lat" step="0.0001" min="-90" max="90" value="55.7558" required>
-            </div>
-            <div class="form-group half">
-              <label for="eqLonInput">Долгота (lon) *</label>
-              <input type="number" id="eqLonInput" name="lon" step="0.0001" min="-180" max="180" value="37.6173" required>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-secondary">Добавить оборудование</button>
-        </form>
-      </section>
-    </div>
-
-    <!-- Секция списка заявок -->
-    <section class="card list-card">
-      <div class="list-header">
-        <h2>Журнал заявок на обслуживание</h2>
-        <div class="filters">
-          <label for="filterStatus">Статус:</label>
-          <select id="filterStatus">
-            <option value="">Все статусы</option>
-            <option value="new">Новые (new)</option>
-            <option value="in_progress">В работе (in_progress)</option>
-            <option value="done">Выполнены (done)</option>
-            <option value="rejected">Отклонены (rejected)</option>
-          </select>
-
-          <label for="filterPriority">Приоритет:</label>
-          <select id="filterPriority">
-            <option value="">Все</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-
-          <button id="refreshBtn" class="btn btn-icon" title="Обновить список">↻</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Учёт оборудования и заявок ТО</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header-container">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <h1>Сервис обслуживания оборудования</h1>
+        </div>
+        <div class="system-status" id="systemStatus">
+          <span class="status-indicator"></span>
+          <span id="statusText">Подключение к API...</span>
         </div>
       </div>
+    </header>
 
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID / Тема</th>
-              <th>Оборудование</th>
-              <th>Приоритет</th>
-              <th>Статус</th>
-              <th>Плановая дата</th>
-              <th>Создано</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody id="requestsTableBody">
-            <tr>
-              <td colspan="7" class="empty-state">Загрузка данных...</td>
-            </tr>
-          </tbody>
-        </table>
+    <main class="container main-content">
+      <!-- Блок уведомлений -->
+      <div id="alertBox" class="alert hidden"></div>
+
+      <div class="grid-layout">
+        <!-- Секция создания заявки -->
+        <section class="card form-card">
+          <h2>Новая заявка на обслуживание</h2>
+          <form id="createRequestForm" class="request-form">
+            <div class="form-group">
+              <label for="equipmentSelect">Оборудование *</label>
+              <select id="equipmentSelect" name="equipmentId" required>
+                <option value="">Загрузка оборудования...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="titleInput">Тема заявки (5–120 символов) *</label>
+              <input
+                type="text"
+                id="titleInput"
+                name="title"
+                minlength="5"
+                maxlength="120"
+                placeholder="Например: Замена фильтров охлаждения"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="descriptionInput">Описание работ</label>
+              <textarea
+                id="descriptionInput"
+                name="description"
+                rows="3"
+                maxlength="2000"
+                placeholder="Подробное описание неисправности или регламента..."
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="prioritySelect">Приоритет *</label>
+                <select id="prioritySelect" name="priority" required>
+                  <option value="low">Низкий (low)</option>
+                  <option value="medium" selected>Средний (medium)</option>
+                  <option value="high">Высокий (high)</option>
+                  <option value="critical">Критический (critical)</option>
+                </select>
+              </div>
+
+              <div class="form-group half">
+                <label for="plannedAtInput">Плановая дата</label>
+                <input type="datetime-local" id="plannedAtInput" name="plannedAt" />
+              </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary">Создать заявку</button>
+          </form>
+        </section>
+
+        <!-- Секция быстрого добавления оборудования при первом старте -->
+        <section class="card form-card">
+          <h2>Регистрация оборудования</h2>
+          <form id="createEquipmentForm" class="equipment-form">
+            <div class="form-group">
+              <label for="eqNameInput">Наименование *</label>
+              <input
+                type="text"
+                id="eqNameInput"
+                name="name"
+                minlength="3"
+                maxlength="100"
+                placeholder="Ветрогенератор ВЭУ-10"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="eqTypeSelect">Тип *</label>
+                <select id="eqTypeSelect" name="type" required>
+                  <option value="turbine">Турбина (turbine)</option>
+                  <option value="inverter">Инвертор (inverter)</option>
+                  <option value="sensor">Датчик (sensor)</option>
+                  <option value="substation">Подстанция (substation)</option>
+                </select>
+              </div>
+              <div class="form-group half">
+                <label for="eqSerialInput">Серийный номер *</label>
+                <input
+                  type="text"
+                  id="eqSerialInput"
+                  name="serialNumber"
+                  placeholder="SN-WT-001"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="eqLatInput">Широта (lat) *</label>
+                <input
+                  type="number"
+                  id="eqLatInput"
+                  name="lat"
+                  step="0.0001"
+                  min="-90"
+                  max="90"
+                  value="55.7558"
+                  required
+                />
+              </div>
+              <div class="form-group half">
+                <label for="eqLonInput">Долгота (lon) *</label>
+                <input
+                  type="number"
+                  id="eqLonInput"
+                  name="lon"
+                  step="0.0001"
+                  min="-180"
+                  max="180"
+                  value="37.6173"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-secondary">Добавить оборудование</button>
+          </form>
+        </section>
       </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <div class="container footer-container">
-      <p>REST API Сервис учёта оборудования и заявок ТО · CaseLab 2026</p>
-    </div>
-  </footer>
+      <!-- Секция списка заявок -->
+      <section class="card list-card">
+        <div class="list-header">
+          <h2>Журнал заявок на обслуживание</h2>
+          <div class="filters">
+            <label for="filterStatus">Статус:</label>
+            <select id="filterStatus">
+              <option value="">Все статусы</option>
+              <option value="new">Новые (new)</option>
+              <option value="in_progress">В работе (in_progress)</option>
+              <option value="done">Выполнены (done)</option>
+              <option value="rejected">Отклонены (rejected)</option>
+            </select>
 
-  <script src="app.js"></script>
-</body>
+            <label for="filterPriority">Приоритет:</label>
+            <select id="filterPriority">
+              <option value="">Все</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+
+            <button id="refreshBtn" class="btn btn-icon" title="Обновить список">↻</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID / Тема</th>
+                <th>Оборудование</th>
+                <th>Приоритет</th>
+                <th>Статус</th>
+                <th>Плановая дата</th>
+                <th>Создано</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+              <tr>
+                <td colspan="7" class="empty-state">Загрузка данных...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-container">
+        <p>REST API Сервис учёта оборудования и заявок ТО · CaseLab 2026</p>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
 </html>

@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderRequests(requests) {
     if (!requests || requests.length === 0) {
-      requestsTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">Заявок не найдено</td></tr>';
+      requestsTableBody.innerHTML =
+        '<tr><td colspan="7" class="empty-state">Заявок не найдено</td></tr>';
       return;
     }
 
@@ -170,7 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const json = await res.json();
       if (!res.ok) {
         const detailMsg = json.error?.details?.map((d) => `${d.field}: ${d.message}`).join(', ');
-        throw new Error(detailMsg ? `${json.error.message} (${detailMsg})` : json.error?.message || 'Ошибка создания');
+        throw new Error(
+          detailMsg
+            ? `${json.error.message} (${detailMsg})`
+            : json.error?.message || 'Ошибка создания'
+        );
       }
 
       showAlert('Заявка успешно зарегистрирована!', 'success');
@@ -218,8 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
-      (tag) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    return str.replace(
+      /[&<>'"]/g,
+      (tag) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[tag] || tag
     );
   }
 
