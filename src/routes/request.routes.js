@@ -12,30 +12,14 @@ import {
 
 const router = Router();
 
-router.get(
-  '/',
-  validate({ query: requestQuerySchema }),
-  requestController.getAll
-);
+router.get('/', validate({ query: requestQuerySchema }), requestController.getAll);
 
-router.post(
-  '/',
-  validate({ body: createRequestSchema }),
-  requestController.create
-);
+router.post('/', validate({ body: createRequestSchema }), requestController.create);
 
 // Массовый импорт заявок (207 Multi-Status)
-router.post(
-  '/bulk',
-  validate({ body: bulkCreateRequestSchema }),
-  requestController.bulkCreate
-);
+router.post('/bulk', validate({ body: bulkCreateRequestSchema }), requestController.bulkCreate);
 
-router.get(
-  '/:id',
-  validate({ params: requestParamsSchema }),
-  requestController.getById
-);
+router.get('/:id', validate({ params: requestParamsSchema }), requestController.getById);
 
 router.patch(
   '/:id',
@@ -49,10 +33,6 @@ router.patch(
   requestController.updateStatus
 );
 
-router.delete(
-  '/:id',
-  validate({ params: requestParamsSchema }),
-  requestController.delete
-);
+router.delete('/:id', validate({ params: requestParamsSchema }), requestController.delete);
 
 export default router;

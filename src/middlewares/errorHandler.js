@@ -41,9 +41,8 @@ export function errorHandler(err, req, res, next) {
     return res.status(413).json(response);
   }
 
-  const status = Number.isInteger(err.status) && err.status >= 400 && err.status < 600
-    ? err.status
-    : 500;
+  const status =
+    Number.isInteger(err.status) && err.status >= 400 && err.status < 600 ? err.status : 500;
 
   const isOperational = err.isOperational === true || status < 500;
 
@@ -59,17 +58,18 @@ export function errorHandler(err, req, res, next) {
       ? 'Внутренняя ошибка сервера'
       : err.message || 'Внутренняя ошибка сервера';
 
-  const defaultCode = status === 404
-    ? 'NOT_FOUND'
-    : status === 409
-      ? 'CONFLICT'
-      : status === 400
-        ? 'VALIDATION_ERROR'
-        : status === 401
-          ? 'UNAUTHORIZED'
-          : status === 403
-            ? 'FORBIDDEN'
-            : 'INTERNAL_SERVER_ERROR';
+  const defaultCode =
+    status === 404
+      ? 'NOT_FOUND'
+      : status === 409
+        ? 'CONFLICT'
+        : status === 400
+          ? 'VALIDATION_ERROR'
+          : status === 401
+            ? 'UNAUTHORIZED'
+            : status === 403
+              ? 'FORBIDDEN'
+              : 'INTERNAL_SERVER_ERROR';
 
   const errorBody = {
     code: err.code || defaultCode,

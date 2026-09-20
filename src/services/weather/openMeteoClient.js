@@ -11,7 +11,8 @@ import { fetchJson } from './httpClient.js';
  * @returns {Promise<Array<{ date: string, minTemp: number, maxTemp: number, precipitation: number, maxWindSpeed: number }>>}
  */
 export async function getForecast({ latitude, longitude, days = 3 } = {}) {
-  const data = await fetchJson(env.weatherApiBaseUrl, {
+  const apiUrl = env.weatherApiUrl || env.weatherApiBaseUrl;
+  const data = await fetchJson(apiUrl, {
     queryParams: {
       latitude,
       longitude,

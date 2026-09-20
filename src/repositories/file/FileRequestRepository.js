@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { RequestRepository } from '../interfaces/RequestRepository.js';
 
 export class FileRequestRepository extends RequestRepository {
@@ -18,7 +19,7 @@ export class FileRequestRepository extends RequestRepository {
       try {
         await fs.mkdir(path.dirname(this.filePath), { recursive: true });
         const content = await fs.readFile(this.filePath, 'utf-8');
-        this._cache = JSON.parse(content);
+        this._cache = content.trim().length > 0 ? JSON.parse(content) : [];
       } catch (err) {
         if (err.code === 'ENOENT') {
           this._cache = [];
@@ -33,8 +34,7 @@ export class FileRequestRepository extends RequestRepository {
   }
 
   async _persist() {
-    // ponytail: atomic write via temp file prevents corrupted JSON
-    const tempFile = `${this.filePath}.tmp.${Date.now()}`;
+    const tempFile = `${this.filePath}.tmp.${Date.now()}_${crypto.randomUUID()}`;
     await fs.writeFile(tempFile, JSON.stringify(this._cache, null, 2), 'utf-8');
     await fs.rename(tempFile, this.filePath);
   }
@@ -63,16 +63,22 @@ export class FileRequestRepository extends RequestRepository {
     }
     if (filter.plannedFrom) {
       const fromTime = new Date(filter.plannedFrom).getTime();
-      items = items.filter((item) => item.plannedAt && new Date(item.plannedAt).getTime() >= fromTime);
+      items = items.filter(
+        (item) => item.plannedAt && new Date(item.plannedAt).getTime() >= fromTime
+      );
     }
     if (filter.plannedTo) {
       const toTime = new Date(filter.plannedTo).getTime();
-      items = items.filter((item) => item.plannedAt && new Date(item.plannedAt).getTime() <= toTime);
+      items = items.filter(
+        (item) => item.plannedAt && new Date(item.plannedAt).getTime() <= toTime
+      );
     }
     if (filter.search) {
       const q = filter.search.toLowerCase();
       items = items.filter(
-        (item) => item.title.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q))
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          (item.description && item.description.toLowerCase().includes(q))
       );
     }
 

@@ -43,15 +43,13 @@ describe('Requests REST API & Business Lifecycle', () => {
   });
 
   it('POST /api/requests - should create request with status "new" and 201 Created', async () => {
-    const res = await request(app)
-      .post('/api/requests')
-      .send({
-        equipmentId: testEquipmentId,
-        title: 'Плановая замена предохранителей',
-        description: 'Проверка силовых цепей и замена плавких вставок',
-        priority: 'medium',
-        plannedAt: '2026-10-01T10:00:00.000Z'
-      });
+    const res = await request(app).post('/api/requests').send({
+      equipmentId: testEquipmentId,
+      title: 'Плановая замена предохранителей',
+      description: 'Проверка силовых цепей и замена плавких вставок',
+      priority: 'medium',
+      plannedAt: '2026-10-01T10:00:00.000Z'
+    });
 
     expect(res.status).toBe(201);
     expect(res.headers.location).toMatch(/\/api\/requests\/[a-f0-9-]+/);
@@ -66,13 +64,11 @@ describe('Requests REST API & Business Lifecycle', () => {
   });
 
   it('POST /api/requests - should return 404 when equipmentId does not exist', async () => {
-    const res = await request(app)
-      .post('/api/requests')
-      .send({
-        equipmentId: '00000000-0000-0000-0000-000000000000',
-        title: 'Заявка в пустоту',
-        priority: 'low'
-      });
+    const res = await request(app).post('/api/requests').send({
+      equipmentId: '00000000-0000-0000-0000-000000000000',
+      title: 'Заявка в пустоту',
+      priority: 'low'
+    });
 
     expect(res.status).toBe(404);
     expect(res.body.error).toBeDefined();
@@ -80,13 +76,11 @@ describe('Requests REST API & Business Lifecycle', () => {
   });
 
   it('POST /api/requests - should return 400 on short title or invalid priority', async () => {
-    const res = await request(app)
-      .post('/api/requests')
-      .send({
-        equipmentId: testEquipmentId,
-        title: 'мало',
-        priority: 'super-urgent'
-      });
+    const res = await request(app).post('/api/requests').send({
+      equipmentId: testEquipmentId,
+      title: 'мало',
+      priority: 'super-urgent'
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -118,6 +112,31 @@ describe('Requests REST API & Business Lifecycle', () => {
     const res = await request(app).get('/api/equipment/unknown-id/requests');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET /api/requests/:id - should return single request by id', async () => {
+    const res = await request(app).get(`/api/requests/${createdRequestId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+    expect(res.body.data.id).toBe(createdRequestId);
+    expect(res.body.data.title).toBe('Плановая замена предохранителей');
+  });
+
+  it('PATCH /api/requests/:id - should update allowed fields and ignore status mutation', async () => {
+    const res = await request(app).patch(`/api/requests/${createdRequestId}`).send({
+      title: 'Обновлённая тема заявки ТО',
+      description: 'Уточнённое описание регламентных работ',
+      priority: 'high',
+      status: 'done', // Должно игнорироваться: статус меняется только через /status
+      id: 'fake-id'
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toBe('Обновлённая тема заявки ТО');
+    expect(res.body.data.description).toBe('Уточнённое описание регламентных работ');
+    expect(res.body.data.priority).toBe('high');
+    expect(res.body.data.status).toBe('new'); // Не изменился на done!
+    expect(res.body.data.id).toBe(createdRequestId);
   });
 
   it('DELETE /api/equipment/:id - should reject equipment deletion if active requests exist (409)', async () => {

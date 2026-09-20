@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { EquipmentRepository } from '../interfaces/EquipmentRepository.js';
 
 export class FileEquipmentRepository extends EquipmentRepository {
@@ -18,7 +19,7 @@ export class FileEquipmentRepository extends EquipmentRepository {
       try {
         await fs.mkdir(path.dirname(this.filePath), { recursive: true });
         const content = await fs.readFile(this.filePath, 'utf-8');
-        this._cache = JSON.parse(content);
+        this._cache = content.trim().length > 0 ? JSON.parse(content) : [];
       } catch (err) {
         if (err.code === 'ENOENT') {
           this._cache = [];
@@ -33,8 +34,7 @@ export class FileEquipmentRepository extends EquipmentRepository {
   }
 
   async _persist() {
-    // ponytail: atomic write via temp file prevents corrupted JSON
-    const tempFile = `${this.filePath}.tmp.${Date.now()}`;
+    const tempFile = `${this.filePath}.tmp.${Date.now()}_${crypto.randomUUID()}`;
     await fs.writeFile(tempFile, JSON.stringify(this._cache, null, 2), 'utf-8');
     await fs.rename(tempFile, this.filePath);
   }
@@ -49,6 +49,18 @@ export class FileEquipmentRepository extends EquipmentRepository {
     }
     if (filter.type) {
       items = items.filter((item) => item.type === filter.type);
+    }
+    if (filter.installedFrom) {
+      const fromTime = new Date(filter.installedFrom).getTime();
+      items = items.filter(
+        (item) => item.installedAt && new Date(item.installedAt).getTime() >= fromTime
+      );
+    }
+    if (filter.installedTo) {
+      const toTime = new Date(filter.installedTo).getTime();
+      items = items.filter(
+        (item) => item.installedAt && new Date(item.installedAt).getTime() <= toTime
+      );
     }
     if (filter.search) {
       const q = filter.search.toLowerCase();

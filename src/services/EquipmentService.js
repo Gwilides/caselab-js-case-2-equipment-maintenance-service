@@ -18,7 +18,9 @@ export class EquipmentService {
   async create(data) {
     const existing = await this.equipmentRepository.findBySerialNumber(data.serialNumber);
     if (existing) {
-      throw new ConflictError(`Оборудование с серийным номером "${data.serialNumber}" уже зарегистрировано`);
+      throw new ConflictError(
+        `Оборудование с серийным номером "${data.serialNumber}" уже зарегистрировано`
+      );
     }
 
     const now = new Date().toISOString();
@@ -37,9 +39,19 @@ export class EquipmentService {
     return await this.equipmentRepository.create(entity);
   }
 
-  async getAll({ page = 1, limit = 10, status, type, sortBy = 'createdAt', sortOrder = 'desc', search } = {}) {
+  async getAll({
+    page = 1,
+    limit = 10,
+    status,
+    type,
+    installedFrom,
+    installedTo,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+    search
+  } = {}) {
     const { items, total } = await this.equipmentRepository.findAll({
-      filter: { status, type, search },
+      filter: { status, type, installedFrom, installedTo, search },
       sort: { sortBy, sortOrder },
       pagination: { page, limit }
     });
@@ -68,10 +80,15 @@ export class EquipmentService {
   async update(id, updates) {
     const existing = await this.getById(id);
 
-    if (updates.serialNumber && updates.serialNumber.toLowerCase() !== existing.serialNumber.toLowerCase()) {
+    if (
+      updates.serialNumber &&
+      updates.serialNumber.toLowerCase() !== existing.serialNumber.toLowerCase()
+    ) {
       const duplicate = await this.equipmentRepository.findBySerialNumber(updates.serialNumber);
       if (duplicate && duplicate.id !== id) {
-        throw new ConflictError(`Оборудование с серийным номером "${updates.serialNumber}" уже зарегистрировано`);
+        throw new ConflictError(
+          `Оборудование с серийным номером "${updates.serialNumber}" уже зарегистрировано`
+        );
       }
     }
 
@@ -88,10 +105,15 @@ export class EquipmentService {
     await this.getById(id);
 
     // Бизнес-правило: запрещено удалять оборудование с незакрытыми заявками (new / in_progress)
-    if (this.requestRepository && typeof this.requestRepository.hasActiveRequestsForEquipment === 'function') {
+    if (
+      this.requestRepository &&
+      typeof this.requestRepository.hasActiveRequestsForEquipment === 'function'
+    ) {
       const hasActive = await this.requestRepository.hasActiveRequestsForEquipment(id);
       if (hasActive) {
-        throw new ConflictError('Невозможно удалить оборудование: имеются активные (незакрытые) заявки на обслуживание');
+        throw new ConflictError(
+          'Невозможно удалить оборудование: имеются активные (незакрытые) заявки на обслуживание'
+        );
       }
     }
 
