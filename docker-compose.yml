@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: equipment-maintenance-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - WEATHER_API_BASE_URL=https://api.open-meteo.com/v1/forecast
+      - REQUEST_TIMEOUT_MS=5000
+      - OUTDOOR_MAX_WIND_SPEED=12.0
+      - OUTDOOR_MAX_PRECIPITATION=1.0
+      - OUTDOOR_MIN_TEMP=-15.0
+      - OUTDOOR_MAX_TEMP=35.0
+      - DATA_DIR=data
+      - LOG_LEVEL=info
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

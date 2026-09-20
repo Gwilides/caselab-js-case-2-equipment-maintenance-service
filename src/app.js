@@ -25,26 +25,29 @@ app.use(helmet({ contentSecurityPolicy: false }));
 // 4. Политика CORS с белым списком доверенных источников
 app.use(corsMiddleware);
 
-// 5. Ограничение частоты запросов (Rate Limiting)
+// 5. Статические файлы клиентского интерфейса (bonus)
+app.use(express.static('public'));
+
+// 6. Ограничение частоты запросов (Rate Limiting) для маршрутов /api
 app.use('/api', rateLimiter);
 
-// 6. Парсинг защищенных cookie
+// 7. Парсинг защищенных cookie
 app.use(cookieParser());
 
-// 7. Парсинг тела запросов с ограничением размера до 100kb
+// 8. Парсинг тела запросов с ограничением размера до 100kb
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// 8. Аутентификация изменяющих операций (API-ключ / cookie auth_token)
+// 9. Аутентификация изменяющих операций (API-ключ / cookie auth_token)
 app.use('/api', requireAuth);
 
-// 9. Подключение маршрутов API
+// 10. Подключение маршрутов API
 app.use('/api', apiRouter);
 
-// 10. Обработчик несуществующих маршрутов (404 Not Found)
+// 11. Обработчик несуществующих маршрутов (404 Not Found)
 app.use(notFoundHandler);
 
-// 11. Централизованный обработчик ошибок
+// 12. Централизованный обработчик ошибок
 app.use(errorHandler);
 
 export default app;
