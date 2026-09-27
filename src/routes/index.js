@@ -3,6 +3,8 @@ import { sequelize } from '../config/database.js';
 import equipmentRoutes from './equipment.routes.js';
 import requestRoutes from './request.routes.js';
 import authRoutes from './auth.routes.js';
+import siteRoutes from './site.routes.js';
+import reportRoutes from './report.routes.js';
 
 const router = Router();
 
@@ -35,5 +37,9 @@ router.use('/auth', authRoutes);
 // Роуты сущностей
 router.use('/equipment', equipmentRoutes);
 router.use('/requests', requestRoutes);
+
+// Роуты площадок и аналитики
+router.use('/sites', siteRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;
