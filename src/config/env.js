@@ -39,6 +39,23 @@ const env = {
     maxTemp: parseFloat(process.env.OUTDOOR_MAX_TEMP || '35.0')
   },
 
+  // Database (PostgreSQL / Sequelize)
+  db: {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    name:
+      process.env.NODE_ENV === 'test'
+        ? process.env.DB_NAME_TEST || 'caselab_db_test'
+        : process.env.DB_NAME || 'caselab_db',
+    user: process.env.DB_USER || 'caselab_user',
+    password: process.env.DB_PASSWORD || 'caselab_secret',
+    poolMax: parseInt(process.env.DB_POOL_MAX || '10', 10),
+    poolMin: parseInt(process.env.DB_POOL_MIN || '2', 10),
+    poolAcquire: parseInt(process.env.DB_POOL_ACQUIRE || '30000', 10),
+    poolIdle: parseInt(process.env.DB_POOL_IDLE || '10000', 10),
+    logging: process.env.DB_LOGGING === 'true'
+  },
+
   // Storage
   dataDir: process.env.DATA_DIR || 'data',
 
