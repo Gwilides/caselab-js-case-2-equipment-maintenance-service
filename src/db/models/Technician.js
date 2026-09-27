@@ -25,6 +25,12 @@ Technician.init(
       allowNull: false,
       unique: true,
       field: 'employee_id'
+    },
+    employeeNumber: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.getDataValue('employeeId');
+      }
     }
   },
   {

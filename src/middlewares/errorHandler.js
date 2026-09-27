@@ -41,6 +41,40 @@ export function errorHandler(err, req, res, next) {
     return res.status(413).json(response);
   }
 
+  // Обработка ошибок Sequelize ORM
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    const fields = err.errors ? err.errors.map((e) => e.path).join(', ') : 'поле';
+    return res.status(409).json({
+      error: {
+        code: 'CONFLICT',
+        message: `Запись с таким значением (${fields}) уже существует`,
+        details: err.errors ? err.errors.map((e) => ({ field: e.path, message: e.message })) : [],
+        requestId: req.id
+      }
+    });
+  }
+
+  if (err.name === 'SequelizeForeignKeyConstraintError') {
+    return res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Связанная сущность не найдена (${err.table || 'foreign key constraint'})`,
+        requestId: req.id
+      }
+    });
+  }
+
+  if (err.name === 'SequelizeValidationError') {
+    return res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Ошибка валидации модели базы данных',
+        details: err.errors ? err.errors.map((e) => ({ field: e.path, message: e.message })) : [],
+        requestId: req.id
+      }
+    });
+  }
+
   const status =
     Number.isInteger(err.status) && err.status >= 400 && err.status < 600 ? err.status : 500;
 
