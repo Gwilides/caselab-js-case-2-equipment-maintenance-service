@@ -51,6 +51,26 @@ export class RequestController {
     const result = await this.service.bulkCreate(req.valid.body.requests);
     res.status(207).json({ data: result });
   };
+
+  assignTeam = async (req, res) => {
+    const rawList = Array.isArray(req.body)
+      ? req.body
+      : req.body && Array.isArray(req.body.assignees)
+        ? req.body.assignees
+        : [];
+    const assignees = await this.service.assignTeam(req.params.id, rawList);
+    res.status(200).json({ data: assignees });
+  };
+
+  removeAssignee = async (req, res) => {
+    await this.service.removeAssignee(req.params.id, req.params.userId);
+    res.status(204).send();
+  };
+
+  getStatusHistory = async (req, res) => {
+    const history = await this.service.getStatusHistory(req.params.id);
+    res.status(200).json({ data: history });
+  };
 }
 
 export const requestController = new RequestController();

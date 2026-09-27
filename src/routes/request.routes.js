@@ -7,7 +7,9 @@ import {
   updateStatusSchema,
   requestQuerySchema,
   requestParamsSchema,
-  bulkCreateRequestSchema
+  bulkCreateRequestSchema,
+  assignTeamSchema,
+  removeAssigneeParamsSchema
 } from '../validators/request.schema.js';
 
 const router = Router();
@@ -18,6 +20,23 @@ router.post('/', validate({ body: createRequestSchema }), requestController.crea
 
 // Массовый импорт заявок (207 Multi-Status)
 router.post('/bulk', validate({ body: bulkCreateRequestSchema }), requestController.bulkCreate);
+
+// Назначение бригады специалистов на заявку
+router.post(
+  '/:id/assignees',
+  validate({ params: requestParamsSchema, body: assignTeamSchema }),
+  requestController.assignTeam
+);
+
+// Снятие специалиста с заявки
+router.delete(
+  '/:id/assignees/:userId',
+  validate({ params: removeAssigneeParamsSchema }),
+  requestController.removeAssignee
+);
+
+// Журнал истории изменения статусов
+router.get('/:id/history', validate({ params: requestParamsSchema }), requestController.getStatusHistory);
 
 router.get('/:id', validate({ params: requestParamsSchema }), requestController.getById);
 

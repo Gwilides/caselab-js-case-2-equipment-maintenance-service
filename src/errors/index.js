@@ -49,6 +49,12 @@ export class BadGatewayError extends AppError {
   }
 }
 
+export class UnprocessableEntityError extends AppError {
+  constructor(message = 'Семантическая ошибка обработки данных', details) {
+    super(message, { status: 422, code: 'UNPROCESSABLE_ENTITY', details });
+  }
+}
+
 export default {
   AppError,
   NotFoundError,
@@ -56,5 +62,6 @@ export default {
   ValidationError,
   UnauthorizedError,
   ForbiddenError,
-  BadGatewayError
+  BadGatewayError,
+  UnprocessableEntityError
 };

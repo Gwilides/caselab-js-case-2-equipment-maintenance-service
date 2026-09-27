@@ -147,6 +147,11 @@ describe('Requests REST API & Business Lifecycle', () => {
   });
 
   it('PATCH /api/requests/:id/status - should transition new -> in_progress', async () => {
+    // В соответствии с бизнес-правилами Кейса 3, назначаем бригаду исполнителей
+    await request(app)
+      .post(`/api/requests/${createdRequestId}/assignees`)
+      .send([{ userId: 'aaaa1111-1111-4aaa-8aaa-111111111111', role: 'lead', hours: 4 }]);
+
     const res = await request(app)
       .patch(`/api/requests/${createdRequestId}/status`)
       .send({ status: 'in_progress' });
