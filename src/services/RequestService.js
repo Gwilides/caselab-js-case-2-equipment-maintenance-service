@@ -12,6 +12,8 @@ import {
   Technician,
   RequestStatusHistory
 } from '../db/models/index.js';
+import { partService } from './PartService.js';
+
 
 // Таблица допустимых переходов статусов жизненного цикла заявки
 const VALID_TRANSITIONS = {
@@ -302,6 +304,14 @@ export class RequestService {
     });
 
     return history.map((h) => h.toJSON());
+  }
+
+  async usePart(requestId, data) {
+    return await partService.usePartInRequest(requestId, data);
+  }
+
+  async getParts(requestId) {
+    return await partService.getRequestParts(requestId);
   }
 
   async delete(id) {

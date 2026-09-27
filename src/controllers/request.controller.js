@@ -71,7 +71,18 @@ export class RequestController {
     const history = await this.service.getStatusHistory(req.params.id);
     res.status(200).json({ data: history });
   };
+
+  usePart = async (req, res) => {
+    const usage = await this.service.usePart(req.params.id, req.body);
+    res.status(201).json({ data: usage });
+  };
+
+  getParts = async (req, res) => {
+    const parts = await this.service.getParts(req.params.id);
+    res.status(200).json({ data: parts });
+  };
 }
 
 export const requestController = new RequestController();
 export default requestController;
+
