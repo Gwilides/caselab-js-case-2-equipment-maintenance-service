@@ -11,6 +11,7 @@ import {
   assignTeamSchema,
   removeAssigneeParamsSchema
 } from '../validators/request.schema.js';
+import { usePartSchema } from '../validators/part.schema.js';
 
 const router = Router();
 
@@ -38,7 +39,16 @@ router.delete(
 // Журнал истории изменения статусов
 router.get('/:id/history', validate({ params: requestParamsSchema }), requestController.getStatusHistory);
 
+// Списание и учёт запчастей по заявке
+router.post(
+  '/:id/parts',
+  validate({ params: requestParamsSchema, body: usePartSchema }),
+  requestController.usePart
+);
+router.get('/:id/parts', validate({ params: requestParamsSchema }), requestController.getParts);
+
 router.get('/:id', validate({ params: requestParamsSchema }), requestController.getById);
+
 
 router.patch(
   '/:id',

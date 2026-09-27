@@ -5,6 +5,7 @@ import requestRoutes from './request.routes.js';
 import authRoutes from './auth.routes.js';
 import siteRoutes from './site.routes.js';
 import reportRoutes from './report.routes.js';
+import partRoutes from './part.routes.js';
 
 const router = Router();
 
@@ -42,4 +43,8 @@ router.use('/requests', requestRoutes);
 router.use('/sites', siteRoutes);
 router.use('/reports', reportRoutes);
 
+// Роуты запчастей и склада
+router.use('/parts', partRoutes);
+
 export default router;
+
