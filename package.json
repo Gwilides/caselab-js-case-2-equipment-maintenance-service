@@ -12,8 +12,10 @@
     "db:migrate": "node src/db/migrator.js up",
     "db:migrate:undo": "node src/db/migrator.js down",
     "db:migrate:undo:all": "node src/db/migrator.js down-all",
+    "db:migrate:status": "node src/db/migrator.js status",
     "db:status": "node src/db/migrator.js status",
     "db:seed": "node src/db/seed.js up",
+
     "db:seed:undo": "node src/db/seed.js down",
     "db:migrate-legacy": "node scripts/migrate-legacy-json.js",
     "lint": "eslint .",
