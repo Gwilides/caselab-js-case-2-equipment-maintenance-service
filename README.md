@@ -243,7 +243,7 @@ erDiagram
         uuid request_id FK
         varchar from_status
         varchar to_status
-        varchar changed_by
+        varchar author
         varchar comment
         timestamp created_at
     }
@@ -253,9 +253,10 @@ erDiagram
         uuid request_id FK
         uuid technician_id FK
         varchar role
-        numeric assigned_hours
+        numeric hours
         timestamp created_at
     }
+
 
     SPARE_PARTS {
         uuid id PK
