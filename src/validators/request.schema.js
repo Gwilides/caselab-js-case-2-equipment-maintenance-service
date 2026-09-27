@@ -103,11 +103,43 @@ export const bulkCreateRequestSchema = z.object({
     .max(100, 'Не более 100 заявок за один импорт')
 });
 
+export const assigneeItemSchema = z
+  .object({
+    userId: z.string().trim().optional(),
+    technicianId: z.string().trim().optional(),
+    role: z.enum(['lead', 'member'], {
+      errorMap: () => ({ message: 'Роль специалиста должна быть "lead" или "member"' })
+    }),
+    hours: z.coerce
+      .number()
+      .positive('Плановые трудозатраты должны быть положительным числом')
+      .optional()
+      .default(1)
+  })
+  .refine((data) => data.userId || data.technicianId, {
+    message: 'Необходимо указать userId или technicianId специалиста'
+  });
+
+export const assignTeamSchema = z.union([
+  z.array(assigneeItemSchema).min(1, 'Список специалистов не может быть пустым'),
+  z.object({
+    assignees: z.array(assigneeItemSchema).min(1, 'Список специалистов не может быть пустым')
+  })
+]);
+
+export const removeAssigneeParamsSchema = z.object({
+  id: z.string().trim().min(1, 'Идентификатор заявки обязателен'),
+  userId: z.string().trim().min(1, 'Идентификатор специалиста обязателен')
+});
+
 export default {
   createRequestSchema,
   updateRequestSchema,
   updateStatusSchema,
   requestQuerySchema,
   requestParamsSchema,
-  bulkCreateRequestSchema
+  bulkCreateRequestSchema,
+  assigneeItemSchema,
+  assignTeamSchema,
+  removeAssigneeParamsSchema
 };

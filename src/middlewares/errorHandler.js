@@ -97,7 +97,9 @@ export function errorHandler(err, req, res, next) {
       ? 'NOT_FOUND'
       : status === 409
         ? 'CONFLICT'
-        : status === 400
+        : status === 422
+          ? 'UNPROCESSABLE_ENTITY'
+          : status === 400
           ? 'VALIDATION_ERROR'
           : status === 401
             ? 'UNAUTHORIZED'
